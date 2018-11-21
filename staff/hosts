@@ -1,0 +1,11 @@
+192.168.12.10	ssmasternode
+192.168.12.11	ssslavenode1
+192.168.12.12	ssslavenode2
+192.168.12.13	ssslavenode3
+
+192.168.11.12	yumproxy
+
+
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+
