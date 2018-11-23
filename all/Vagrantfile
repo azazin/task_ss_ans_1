@@ -1,6 +1,8 @@
 Vagrant.configure(2) do |config|
   config.vm.box = "centos/7"
 
+
+  
   config.vm.define :ssslavenode1 do |ssslavenode1|
       ssslavenode1.vm.host_name = "ssslavenode1"
       ssslavenode1.vm.network "private_network", ip:"192.168.12.11"
@@ -38,32 +40,40 @@ Vagrant.configure(2) do |config|
 	config.vm.provision "shell", path: "~/ss/staff/install.sh"
   end
 
-      config.vm.define :ssmasternode do |ssmasternode|
+
+	
+	      config.vm.define :ssmasternode do |ssmasternode|
       ssmasternode.vm.host_name = "ssmasternode"
       ssmasternode.vm.network "private_network", ip:"192.168.12.10"
       ssmasternode.vm.provider :virtualbox do |vb|
           vb.customize ["modifyvm", :id, "--memory", "1000"]
-          vb.customize ["modifyvm", :id, "--cpus", "2"]
+          vb.customize ["modifyvm", :id, "--cpus", "1"]
       end
 	  	config.vm.provision "file", source: "~/ss/staff/hosts", destination: "/vagrant/hosts"
 		config.vm.provision "file", source: "~/ss/staff/yum.repos.d.tar.gz", destination: "/vagrant/yum.repos.d.tar.gz"
 		config.vm.provision "shell", path: "~/ss/staff/install.sh"
+		
 		config.vm.provision "shell", inline: <<-SHELL
-			    yum install python-setuptools -y
+		NEWUSER=ansible
+		NEWUSERPASS=ansible
+			    yum install sshpass python-setuptools -y
 				easy_install pip
 				pip install --upgrade pip
 				pip install ansible
-					ssh-keyscan -t rsa,dsa ssmasternode 2>&1 | sort -u - ~/.ssh/known_hosts > ~/.ssh/tmp_hosts
-					ssh-keyscan -t rsa,dsa ssslavenode1 2>&1 | sort -u - ~/.ssh/known_hosts > ~/.ssh/tmp_hosts
-					ssh-keyscan -t rsa,dsa ssslavenode2 2>&1 | sort -u - ~/.ssh/known_hosts > ~/.ssh/tmp_hosts
-					ssh-keyscan -t rsa,dsa ssslavenode3 2>&1 | sort -u - ~/.ssh/known_hosts > ~/.ssh/tmp_hosts
-					mv ~/.ssh/tmp_hosts ~/.ssh/known_hosts
-					
+			echo $NEWUSERPASS > /home/$NEWUSER/.ssh/password$NEWUSER.txt
+					ssh-keyscan ssmasternode ssslavenode1 ssslavenode2 ssslavenode3 > /home/$NEWUSER/.ssh/known_hosts
+					chown -R $NEWUSER:  /home/$NEWUSER/.ssh/*
+		sudo -u $NEWUSER sshpass -f /home/$NEWUSER/.ssh/password$NEWUSER.txt  ssh-copy-id $NEWUSER@ssslavenode1
+		sudo -u $NEWUSER sshpass -f /home/$NEWUSER/.ssh/password$NEWUSER.txt  ssh-copy-id $NEWUSER@ssslavenode2
+		sudo -u $NEWUSER sshpass -f /home/$NEWUSER/.ssh/password$NEWUSER.txt  ssh-copy-id $NEWUSER@ssslavenode3
+		sudo -u $NEWUSER sshpass -f /home/$NEWUSER/.ssh/password$NEWUSER.txt  ssh-copy-id $NEWUSER@ssmasternode
+		chown -R $NEWUSER:  /home/$NEWUSER/.ssh/*
+		updatedb
 
 
 				SHELL
- 	#config.vm.provision "shell", path: "~/ss/staff/install.sh"
   end
+	
 	
 	
   
