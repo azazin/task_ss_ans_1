@@ -4,7 +4,7 @@ NEWUSERPASS=ansible
 
 rm /etc/hosts
 cp /vagrant/hosts /etc/hosts
-tar -xzvf /vagrant/yum.repos.d.tar.gz -C /etc/
+#tar -xzvf /vagrant/yum.repos.d.tar.gz -C /etc/
 yum install epel-release -y
 yum update -y
 yum install -y mc htop iftop iotop elinks wget vim mlocate   lsof git #python-setuptools
